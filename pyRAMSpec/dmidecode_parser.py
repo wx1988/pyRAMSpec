@@ -5,6 +5,11 @@
 This file format the output of dmidecode output
 """
 
+import os
+import re
+
+from pyRAMSpec.ramspec_util import execute_cmd
+
 def parse_machine_info(dmidecode_output):
     """output
     :return : dict that contains manufacturer and productname
@@ -13,13 +18,13 @@ def parse_machine_info(dmidecode_output):
     lines = [line.strip() for line in dmidecode_output.split("\n")]
     for line in lines:
         if line.startswith("Manufacturer"):
-            machine_info['manufacturer'] = line[line.index(":")+1:]
+            machine_info['manufacturer'] = line[line.index(":")+1:].strip()
         if line.startswith("Product Name"):
-            machine_info['productname'] = line[line.index(":")+1:]
+            machine_info['productname'] = line[line.index(":")+1:].strip()
     return machine_info
 
 def get_machine_info(dmidecode_path='dmidecode'):
-    """
+    """Wrapper to get the machine information based on dmidecode
     """
     get_sys_cmd = [dmidecode_path, "-t", "system"]
     system_str = execute_cmd(get_sys_cmd) 
@@ -44,7 +49,7 @@ def get_ram_capacity_info(dmidecode_path='dmidecode'):
     """
     get_rc_cmd = [dmidecode_path, "-t", "16"]
     rc_str = execute_cmd(get_rc_cmd) 
-    return parse_ram_capcity_info(rc_str)
+    return parse_ram_capacity_info(rc_str)
 
 def parse_mem_info_list(dmidecode_output):
     """get list of memory information from output of 
@@ -54,26 +59,31 @@ def parse_mem_info_list(dmidecode_output):
     #print output
 
     # 1. size
-    size_re = re.compile(r"Size: (\d+) MB")
+    size_re = re.compile(r"Size: ((\d+) MB|(No Module Installed))")
     # 2. type
     type_re = re.compile(r"Type: ([\s\S]*?)\n")
-    typed_re = re.compile(r"Type Detail: ([\w ]+)")
+    typed_re = re.compile(r"Type Detail: ([\s|\S]*?)\n")
     # 3. speed
     speed_re = re.compile(r"Speed: (\d+) MHz")
     # 4. Part number
     pn_re = re.compile(r"Part Number: ([\s|\S]*?)\n")
 
     mem_info_list = []
-    mem_list = output.split('\n\n')
+    mem_list = dmidecode_output.split('\n\n')
     for mem in mem_list:
         mem = mem.strip()
         #print '0', mem[0]
         if mem == "":
             continue
         if mem.startswith("Handle"):
+            if size_re.search(mem).group(1) == "No Module Installed":
+                continue
+
             print 'Mem', mem
-            size_str = size_re.search(mem).group(1)
-            print 'size'
+            size_str = size_re.search(mem).group(2)
+            print size_re.search(mem).groups()
+            print 'size', size_str
+
             type_str = type_re.search(mem).group(1)
             print 'type'
             typed_str = typed_re.search(mem).group(1)
@@ -98,13 +108,16 @@ def get_mem_info_list(dmidecode_path="dmidecode"):
     return parse_mem_info_list(output)
 
 def get_sys_info():
-    dmidecode_path = ""
-    if os.path.isfile("./dmidecode.exe"):
-        dmidecode_path = "./dmidecode.exe"
-    elif os.path.isfile("./dist/dmidecode.exe"):
-        dmidecode_path = "./dist/dmidecode.exe"
+    from sys import platform as _platform
+    if _platform == "linux" or _platform == "linux2":
+        dmidecode_path = "dmidecode"
     else:
-        raise Exception("dmidecode not found")
+        if os.path.isfile("./dmidecode.exe"):
+            dmidecode_path = "./dmidecode.exe"
+        elif os.path.isfile("./dist/dmidecode.exe"):
+            dmidecode_path = "./dist/dmidecode.exe"
+        else:
+            raise Exception("dmidecode not found")
     print "detected dmidecode", dmidecode_path
     
     sys_info = {}
