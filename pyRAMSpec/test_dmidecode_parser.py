@@ -12,6 +12,31 @@ from pyRAMSpec.dmidecode_parser import parse_mem_info_list
 class TestDmidecodeSystem(unittest.TestCase):
     """Test the function to parse machine model
     """
+    def test_dell_t5810(self):
+        """Test dell T5810 for machine information
+        """
+        system_str = """# dmidecode 2.10
+SMBIOS 2.8 present.
+
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+        Manufacturer: Dell Inc.
+        Product Name: Precision Tower 5810
+        Version: 01
+        Serial Number: G7RPT52
+        UUID: 4C4C4544-0037-5210-8050-C7C04F543532
+        Wake-up Type: Power Switch
+        SKU Number: Precision Tower 5810
+        Family: Not Specified
+
+Handle 0x0028, DMI type 32, 20 bytes
+System Boot Information
+        Status: No errors detected"""
+
+        system_info_dict = parse_machine_info(system_str)
+        self.assertEqual(system_info_dict['manufacturer'], 'Dell Inc.')
+        self.assertEqual(system_info_dict['productname'], 'Precision Tower 5810')
+
     def test_dell_t3610(self):
         """Test the dell build T3610 for machine informaiton
         """
@@ -68,6 +93,25 @@ System Boot Information
 class TestDmidecode16(unittest.TestCase):
     """The summarized capacity about the memory
     """
+    def test_dell_t5810(self):
+        """Test on Dell T5810
+        """
+        t16_output = """# dmidecode 2.10
+SMBIOS 2.8 present.
+
+Handle 0x002F, DMI type 16, 23 bytes
+Physical Memory Array
+        Location: System Board Or Motherboard
+        Use: System Memory
+        Error Correction Type: Multi-bit ECC
+        Maximum Capacity: 256 GB
+        Error Information Handle: Not Provided
+        Number Of Devices: 8"""
+        ram_cap = parse_ram_capacity_info(t16_output)
+        self.assertEqual(ram_cap['maximum_capacity'], 256)
+        self.assertEqual(ram_cap['slots'], 8)
+        
+
     def test_dell_t3610(self):
         """Test on Dell T3610
         """
@@ -89,6 +133,206 @@ Physical Memory Array
 class TestDmidecode17(unittest.TestCase):
     """Test the detail information about the memory list
     """
+    def test_dell_t5810(self):
+        """Test on dell 5810 updated from 4G*2 to 4G*4
+        """
+        t17_output = """# dmidecode 2.10
+SMBIOS 2.8 present.
+
+Handle 0x0039, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: 72 bits
+        Data Width: 64 bits
+        Size: 4096 MB
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM1
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: 2133 MHz
+        Manufacturer: Hynix Semiconductor
+        Serial Number: 70F16A54
+        Asset Tag: DIMM1_AssetTag
+        Part Number: HMA451R7MFR8N-TF
+        Rank: 1
+
+Handle 0x0043, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: Unknown
+        Data Width: Unknown
+        Size: No Module Installed
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM5
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: Unknown
+        Manufacturer: DIMM5_Manufacturer1
+        Serial Number: DIMM5_SerNum
+        Asset Tag: DIMM5_AssetTag
+        Part Number: DIMM5_PartNumber
+        Rank: Unknown
+
+Handle 0x0048, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: 72 bits
+        Data Width: 64 bits
+        Size: 4096 MB
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM3
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: 2133 MHz
+        Manufacturer: Hynix Semiconductor
+        Serial Number: 90EA1F9D
+        Asset Tag: DIMM3_AssetTag
+        Part Number: HMA451R7MFR8N-TF
+        Rank: 1
+
+Handle 0x0052, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: Unknown
+        Data Width: Unknown
+        Size: No Module Installed
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM7
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: Unknown
+        Manufacturer: DIMM7_Manufacturer1
+        Serial Number: DIMM7_SerNum
+        Asset Tag: DIMM7_AssetTag
+        Part Number: DIMM7_PartNumber
+        Rank: Unknown
+
+Handle 0x0057, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: 72 bits
+        Data Width: 64 bits
+        Size: 4096 MB
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM2
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: 2133 MHz
+        Manufacturer: Hynix Semiconductor
+        Serial Number: 70F169B7
+        Asset Tag: DIMM2_AssetTag
+        Part Number: HMA451R7MFR8N-TF
+        Rank: 1
+
+Handle 0x0061, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: Unknown
+        Data Width: Unknown
+        Size: No Module Installed
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM6
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: Unknown
+        Manufacturer: DIMM6_Manufacturer1
+        Serial Number: DIMM6_SerNum
+        Asset Tag: DIMM6_AssetTag
+        Part Number: DIMM6_PartNumber
+        Rank: Unknown
+
+Handle 0x0066, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: 72 bits
+        Data Width: 64 bits
+        Size: 4096 MB
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM4
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: 2133 MHz
+        Manufacturer: Hynix Semiconductor
+        Serial Number: 90EA1F22
+        Asset Tag: DIMM4_AssetTag
+        Part Number: HMA451R7MFR8N-TF
+        Rank: 1
+
+Handle 0x0070, DMI type 17, 34 bytes
+Memory Device
+        Array Handle: 0x002F
+        Error Information Handle: Not Provided
+        Total Width: Unknown
+        Data Width: Unknown
+        Size: No Module Installed
+        Form Factor: DIMM
+        Set: None
+        Locator: DIMM8
+        Bank Locator: Not Specified
+        Type: Other
+        Type Detail: Synchronous
+        Speed: Unknown
+        Manufacturer: DIMM8_Manufacturer1
+        Serial Number: DIMM8_SerNum
+        Asset Tag: DIMM8_AssetTag
+        Part Number: DIMM8_PartNumber
+        Rank: Unknown"""
+        mem_list = parse_mem_info_list(t17_output)
+        true_mem_list = [
+            {
+                'capacity': 4096,
+                'type': 'Other',
+                'detail': 'Synchronous',
+                'speed': 2133,
+                'model': 'HMA451R7MFR8N-TF'
+            },
+            {
+                'capacity': 4096,
+                'type': 'Other',
+                'detail': 'Synchronous',
+                'speed': 2133,
+                'model': 'HMA451R7MFR8N-TF'
+            },
+            {
+                'capacity': 4096,
+                'type': 'Other',
+                'detail': 'Synchronous',
+                'speed': 2133,
+                'model': 'HMA451R7MFR8N-TF'
+            },
+            {
+                'capacity': 4096,
+                'type': 'Other',
+                'detail': 'Synchronous',
+                'speed': 2133,
+                'model': 'HMA451R7MFR8N-TF'
+            }
+            ]
+        self.assertEqual(mem_list, true_mem_list)
+
+        
+
     def test_dell_t3610(self):
         """Test on unmodified Dell T3610
         """
